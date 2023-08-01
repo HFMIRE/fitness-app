@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  email          String        @unique
+  password       String        @unique
+  avatar         String?
+  HealthMetric   HealthMetric? @relation(fields: [HealthMetricId], references: [id])
+  HealthMetricId String        @db.ObjectId
+}
+
+enum activityLevel {
+  SEDENTARY // Less than 30 mins a day 
+  LIGHTLY_ACTIVE // exercise for at least 30 min 
+  MODERATELY_ACTIVE // exercise for at least 1 hr  to 45 mins  
+  VERY_ACTIVE //  excerise at the 4hr and 15 mins 
+}
+
+model HealthMetric {
+  id     String        @id @default(auto()) @map("_id") @db.ObjectId
+  weight Int
+  height Int
+  level  activityLevel @default(SEDENTARY)
+  User   User[]
+}
+
+model Exercise {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  type      String
+  intensity String
+  calories  Int
+  Log       Log    @relation(fields: [LogId], references: [id])
+  LogId     String @db.ObjectId
+}
+
+model Log {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  excerise  Exercise[]
+  duration  Float
+  createdAt DateTime   @default(now())
+  distance  Int?
+  updatedAt DateTime   @updatedAt
+}
