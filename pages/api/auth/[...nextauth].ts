@@ -1,17 +1,14 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import EmailProvider from "next-auth/providers/email";
 import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import clientPromise from "../../../lib/mongodb";
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: MongoDBAdapter(clientPromise),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
+      clientId: process.env.GOOGLE_ID as string,
+      clientSecret: process.env.GOOGLE_SECRET as string,
     }),
     EmailProvider({
       server: {
@@ -22,9 +19,9 @@ export const authOptions: NextAuthOptions = {
           pass: process.env.EMAIL_SERVER_PASSWORD,
         },
       },
-      from: process.env.EMAIL_FROM,
     }),
   ],
+
   theme: {
     colorScheme: "dark",
   },
@@ -32,6 +29,7 @@ export const authOptions: NextAuthOptions = {
     session({ session, token, user }) {
       if (session.user) {
         session.user.id = user.id;
+        console.log(session.user.id);
       }
       return session;
     },
