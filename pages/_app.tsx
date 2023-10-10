@@ -1,16 +1,24 @@
-import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { SessionProvider } from "next-auth/react";
-import type { Session } from "next-auth";
-
-function MyApp({
-  Component,
-  pageProps: { session, ...pageProps },
-}: AppProps<{ session: Session }>) {
+import { ChakraProvider } from "@chakra-ui/react";
+import { ClerkProvider } from "@clerk/nextjs";
+import Layout from "../components/layout";
+import { dark } from "@clerk/themes";
+import { theme } from "../theme";
+import "../styles.css";
+function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <SessionProvider session={session}>
-      <Component {...pageProps} />;
-    </SessionProvider>
+    <ChakraProvider theme={theme}>
+      <ClerkProvider
+        appearance={{
+          baseTheme: dark,
+        }}
+        {...pageProps}
+      >
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </ClerkProvider>
+    </ChakraProvider>
   );
 }
 
